@@ -1,5 +1,6 @@
 python
+postrgresql
 django
 djangorestframework
 djangorestframework-simplejwt
-postrgresql
+psycopg2
