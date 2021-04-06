@@ -1,0 +1,6 @@
+python
+postrgresql
+django
+djangorestframework
+djangorestframework-simplejwt
+psycopg2
