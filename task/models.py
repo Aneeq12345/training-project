@@ -16,3 +16,12 @@ class Task(models.Model):
         return self.title
 
 
+class TaskFile(models.Model):
+ 
+    name = models.CharField(max_length = 50)
+    document = models.FileField(upload_to = 'documents/')
+    task =models.ForeignKey(Task, on_delete=models.CASCADE)
+    class Meta:
+        db_table = "documents"
+    def __str__(self):
+        return self.name    
