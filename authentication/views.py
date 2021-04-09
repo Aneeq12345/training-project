@@ -6,6 +6,7 @@ from .serializers import RegisterSerializer,UserSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import generics,permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,7 +15,7 @@ import json
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-
+from social_django.utils import psa
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
@@ -56,7 +57,40 @@ class Login(APIView):
         else:
             return Response({"success":False,"message":"INVALID EMAIL ADDRESS!"},status=status.HTTP_400_BAD_REQUEST)    
 
-    
-            
+from rest_framework import serializers  
+class SocialSerializer(serializers.Serializer):
+    """
+    Serializer which accepts an OAuth2 access token.
+    """
+    access_token = serializers.CharField(
+        allow_blank=False,
+        trim_whitespace=True,
+    )
+
         
-        
+@api_view(http_method_names=['POST'])
+@permission_classes([AllowAny])
+@psa()
+def exchange_token(request, backend):
+    serializer = SocialSerializer(data=request.data)
+
+    if serializer.is_valid(raise_exception=True):
+        # This is the key line of code: with the @psa() decorator above,
+        # it engages the PSA machinery to perform whatever social authentication
+        # steps are configured in your SOCIAL_AUTH_PIPELINE. At the end, it either
+        # hands you a populated User model of whatever type you've configured in
+        # your project, or None.
+        user = request.backend.do_auth(serializer.validated_data['access_token'])
+
+        if user:
+            # if using some other token back-end than DRF's built-in TokenAuthentication,
+            # you'll need to customize this to get an appropriate token object
+            print("hello")
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key})
+
+        else:
+            return Response(
+                {'errors': {'token': 'Invalid token'}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )        
