@@ -1,24 +1,16 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from rest_framework.response import Response
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-
-    @classmethod
-    def get_token(cls, user):
-        print("in serializer: ",user.id)
-    
-        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
-    
-        # Add custom claims
-        token['username'] = user.username
-        return token
+from rest_framework.response import Response
 
 
-
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id','email', 'first_name', 'last_name')
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -31,22 +23,21 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name')
+        fields = ('password', 'password2', 'email', 'first_name', 'last_name')
         extra_kwargs = {
             'first_name': {'required': True},
             'last_name': {'required': True}
         }
 
-    # def validate(self, attrs):
-    #     if attrs['password'] != attrs['password2']:
-    #         raise serializers.ValidationError({"password": "Password fields didn't match."})
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
         
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return attrs
 
     def create(self, validated_data):
         print("hello")
         user = User.objects.create(
-            username=validated_data['username'],
             email=validated_data['email'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name']
