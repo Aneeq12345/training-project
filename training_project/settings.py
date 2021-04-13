@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'rest_framework_simplejwt',
     'django_crontab',
-    'task.apps.TaskConfig',
     'authentication.apps.AuthenticationConfig',
     'social_django',
 ]

@@ -23,7 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('authentication.urls')),
     path('', TemplateView.as_view(template_name='authentication/login.html')),
-    path('users/tasks/', include('task.urls')),
     path('users/password_reset/',
          include('django_rest_passwordreset.urls',
                  namespace='password_reset')),
