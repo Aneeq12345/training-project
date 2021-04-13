@@ -1,0 +1,10 @@
+{
+    "python.pythonPath": "/home/emumba/projects/traningProject1/my_env/bin/python",
+    "python.analysis.memory.keepLibraryAst": true,
+    "python.formatting.provider": "autopep8",
+    "python.linting.pycodestyleEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintArgs": [
+        "--load-plugin=pylint_django"
+    ]
+}

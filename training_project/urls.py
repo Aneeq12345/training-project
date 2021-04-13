@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
@@ -23,7 +23,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('authentication.urls')),
     path('', TemplateView.as_view(template_name='authentication/login.html')),
-    path('users/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('users/password_reset/',
+         include('django_rest_passwordreset.urls',
+                 namespace='password_reset')),
 ]
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT
+                          )

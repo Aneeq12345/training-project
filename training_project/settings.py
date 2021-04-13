@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'django_crontab',
     'authentication.apps.AuthenticationConfig',
     'social_django',
-    
 ]
 
 MIDDLEWARE = [
@@ -100,37 +99,36 @@ DATABASES = {
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-   'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
 
-
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.\
+         UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.\
+         MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.\
+        CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.\
+         NumericPasswordValidator',
     },
 ]
-#EMAIL
+# EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT',cast=int)
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS',cast=bool)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -144,7 +142,9 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-#cron job
+
+# cron job
+
 CRONJOBS = [
     ('*/1 * * * *', 'task.cron.my_scheduled_job')
 ]
@@ -161,14 +161,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SITE_ID = 1
-LOGIN_REDIRECT_URL='/'
+LOGIN_REDIRECT_URL = '/'
 AUTHENTICATION_BACKENDS = [
-    
     'django.contrib.auth.backends.ModelBackend',
     'social_core.backends.facebook.FacebookOAuth2',
-    
 ]
 SIMPLE_JWT = {
-    'USER_ID_FIELD': 'email', # model property to attempt claims for
-    'USER_ID_CLAIM': 'user_email', # actual keyword in token data
+    'USER_ID_FIELD': 'email',  # model property to attempt claims for
+    'USER_ID_CLAIM': 'user_email',  # actual keyword in token data
 }
