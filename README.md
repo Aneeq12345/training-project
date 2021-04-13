@@ -1,17 +1,5 @@
 # training-project
 
-# Installation
-Install python and postgresql.
-
-
-Install these  packages.
-
-```bash
-pip install django
-pip install djangorestframework
-pip install djangorestframework-simplejwt
-pip install psycopg2
-```
 # Environment variables
 In env configure 
 
