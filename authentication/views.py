@@ -8,7 +8,6 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.validators import validate_email
 from validate_email import validate_email
 
 

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'rest_framework_simplejwt',
     'django_crontab',
+    'task.apps.TaskConfig',
     'authentication.apps.AuthenticationConfig',
     'social_django',
 ]
@@ -119,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.\
-         NumericPasswordValidator',
+        NumericPasswordValidator',
     },
 ]
 # EMAIL
