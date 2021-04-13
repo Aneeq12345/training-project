@@ -1,4 +1,5 @@
-from django.shortcuts import render
+
+
 
 # Create your views here.
 from rest_framework import status
@@ -10,12 +11,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import generics,permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import re
-import json
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-from social_django.utils import psa
+from validate_email import validate_email
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
@@ -23,18 +23,11 @@ class RegisterView(generics.CreateAPIView):
         
 
 class Login(APIView):
-    def validateEmail(self, email ):
-        
-        try:
-            validate_email( email )
-            return True
-        except ValidationError:
-            return False
     def getUser(self,email):
          try:
             return User.objects.get(email=email)
          except User.DoesNotExist:
-            return "NOT FOUND"
+            return None
     def get_tokens_for_user(self,user):
         refresh = RefreshToken.for_user(user)
 
@@ -45,9 +38,9 @@ class Login(APIView):
     def get(self, request, format=None):
 
         email=request.data['email']
-        if self.validateEmail(email):
-            user = self.getUser(email=request.data['email'])
-            if user=="NOT FOUND":
+        if validate_email(email):
+            user = self.getUser(email=email)
+            if not user:
                return Response({"success":False,"message":"User Not Found!"},status=status.HTTP_404_NOT_FOUND)
             if user.check_password(request.data['password']):
                 serializer=UserSerializer(user)
@@ -57,40 +50,4 @@ class Login(APIView):
         else:
             return Response({"success":False,"message":"INVALID EMAIL ADDRESS!"},status=status.HTTP_400_BAD_REQUEST)    
 
-from rest_framework import serializers  
-class SocialSerializer(serializers.Serializer):
-    """
-    Serializer which accepts an OAuth2 access token.
-    """
-    access_token = serializers.CharField(
-        allow_blank=False,
-        trim_whitespace=True,
-    )
 
-        
-@api_view(http_method_names=['POST'])
-@permission_classes([AllowAny])
-@psa()
-def exchange_token(request, backend):
-    serializer = SocialSerializer(data=request.data)
-
-    if serializer.is_valid(raise_exception=True):
-        # This is the key line of code: with the @psa() decorator above,
-        # it engages the PSA machinery to perform whatever social authentication
-        # steps are configured in your SOCIAL_AUTH_PIPELINE. At the end, it either
-        # hands you a populated User model of whatever type you've configured in
-        # your project, or None.
-        user = request.backend.do_auth(serializer.validated_data['access_token'])
-
-        if user:
-            # if using some other token back-end than DRF's built-in TokenAuthentication,
-            # you'll need to customize this to get an appropriate token object
-            print("hello")
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key})
-
-        else:
-            return Response(
-                {'errors': {'token': 'Invalid token'}},
-                status=status.HTTP_400_BAD_REQUEST,
-            )        
