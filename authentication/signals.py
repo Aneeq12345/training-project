@@ -2,27 +2,6 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django_rest_passwordreset.signals import reset_password_token_created
 from django.core.mail import send_mail
-from rest_framework.response import Response
-
-
-class BaseApiView:
-    def sucess(data, description, status, errors, format=None):
-        return Response({
-            "success": True,
-            "payload": data,
-            "errors": errors,
-            "description": description
-            },
-            status=status)
-
-    def failed(data, description, status, errors, format=None):
-        return Response({
-            "success": False,
-            "payload": data,
-            "errors": errors,
-            "description": description
-            },
-            status=status)
 
 
 @receiver(reset_password_token_created)
