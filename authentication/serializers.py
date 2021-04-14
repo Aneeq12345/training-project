@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.response import Response
+from .signals import BaseApiView
+from rest_framework import status
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -13,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'email', 'first_name', 'last_name')
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer, BaseApiView):
     email = serializers.EmailField(
             validators=[UniqueValidator(queryset=User.objects.all())]
             )
@@ -42,4 +44,5 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)
         user.save()
+        UserSerializer(user)
         return user

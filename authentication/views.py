@@ -9,12 +9,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from validate_email import validate_email
+from .signals import BaseApiView
 
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        return BaseApiView.sucess(response.data,
+                                  "User registered successfully.",
+                                  status.HTTP_201_CREATED, None)
 
 
 class Login(APIView):
@@ -31,38 +38,25 @@ class Login(APIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token)}
 
-    def get(self, request, format=None):
+    def post(self, request, format=None):
         email = request.data['email']
         if validate_email(email):
             user = self.getUser(email=email)
             if not user:
-                return Response(
-                    {
-                        "success": False,
-                        "message": "User Not Found!"
-                    },
-                    status=status.HTTP_404_NOT_FOUND)
+                return BaseApiView.failed("",
+                                          "User Not Found!",
+                                          status.HTTP_404_NOT_FOUND, None)
             if user.check_password(request.data['password']):
                 serializer = UserSerializer(user)
                 token = self.get_tokens_for_user(user)
-                return Response(
-                    {
-                        "success": True,
-                        "message": "Sucessfully Login!",
-                        "result": serializer.data,
-                        "token": token
-                    }
-                    )
-            return Response(
-                {
-                    "success": False,
-                    "message": "INVALID PASSWORD!"
-                },
-                status=status.HTTP_400_BAD_REQUEST)
+                response_data = [token, serializer.data]
+                return BaseApiView.sucess(response_data,
+                                          "User logged in successfully.",
+                                          status.HTTP_200_OK, None)
+            return BaseApiView.failed("",
+                                      "INVALID PASSWORD!",
+                                      status.HTTP_400_BAD_REQUEST, None)
         else:
-            return Response(
-                {
-                    "success": False,
-                    "message": "INVALID EMAIL ADDRESS!"
-                },
-                status=status.HTTP_400_BAD_REQUEST)
+            return BaseApiView.failed("",
+                                      "INVALID EMAIL ADDRESS!",
+                                      status.HTTP_400_BAD_REQUEST, None)
