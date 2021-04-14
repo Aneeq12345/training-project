@@ -1,0 +1,406 @@
+{
+	"info": {
+		"_postman_id": "c933b348-26c5-401e-af24-b78a92434d32",
+		"name": "trainingProject",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "createTask",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE3Nzk0NDg4LCJqdGkiOiIwNGYwYWI0NDM2MDk0M2IxOGZlMGIwZTMzZGYxOTVhMCIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoiYW5lZXEifQ.svMCD1VY04hJojJZeNcMRSQcd-97i8Pke9g2jxK97lE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\n        \"title\": \"task5\",\n        \"description\": \"task5 inserted first\",\n        \"date_posted\": \"2021-04-06T05:12:59.049131Z\",\n        \"due_date\": \"2021-04-05T00:00:00Z\",\n        \"user\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/tasks/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"tasks",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getListsOfTask",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4Mjk1NTQxLCJqdGkiOiI5NTc1MDM2ZTYxZTg0YWMyOTc4OGE3MzFjMWUyMTE1MiIsInVzZXJfZW1haWwiOiJtdXFlZXQ2ODk2QGdtYWlsLmNvbSJ9._aNu8ZS8Z5h3TJxEF6V_Q-p4B5ZkP3TqPcqUj9oTzc4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\":2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/users/tasks",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateTask",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE3NjgzMzgxLCJqdGkiOiI3MTNjMzE3MWE3MDU0ODhiYjg5OWI0NjJlNjc0MzJlZSIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoiYW5lZXEifQ.H0IdkKJWmgl4-LiSSLgLjWRbQ1Z1zLuTe5_8X6XwgPI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\n        \"id\": 33,\n        \"title\": \"task1\",\n        \"description\": \"task1 inserted first\",\n        \"date_posted\": \"2021-04-06T05:12:59.049131Z\",\n        \"due_date\": \"2021-04-05T00:00:00Z\",\n        \"completion_date\": null,\n        \"completion_status\": false,\n        \"attach_files\": [\n            {\n                \"filename\": \"company\",\n                \"file_path\": \"pa/es\"\n            },\n             {\n                \"filename\": \"company\",\n                \"file_path\": \"pa/es\"\n            }\n        ],\n        \"user\": 2\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/tasks/taskDetail/30/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"tasks",
+								"taskDetail",
+								"30",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteTask",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE3Nzk4OTQ2LCJqdGkiOiIwZDBhMjg3MDgwMTg0ZTQ1OTk4MGQzYmNmZDBhYTU5OCIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoiYW5lZXEifQ.LySQCEBXNMahfWhqUSv83ICIGwELwYM2lKTZBOeo-_k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"task_id\":\"5\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/tasks/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"tasks",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "uploadFile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE3NjkyOTAxLCJqdGkiOiIyOTYzM2YzNTM2Yjg0NDdmOGQ3ODQ1OThhN2NjNGFiZSIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoiYW5lZXEifQ.Xd73Saqxty0qYMkVYgNpyLKnuiPkF1_yZ_pMDoO7kXA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"type": "file",
+									"src": "/home/emumba/Downloads/sample.pdf"
+								},
+								{
+									"key": "tasks",
+									"value": "34",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:8000/tasks/fileUpload/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"tasks",
+								"fileUpload",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getFilesForTask",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getSimilarTasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "authentication",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"muqeet6896@gmail.com\",\n    \"password\":\"pass@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/login/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"login",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "registerUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "password",
+									"value": "pass@123",
+									"type": "text"
+								},
+								{
+									"key": "password2",
+									"value": "pass@123",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "batch16.049@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "first_name",
+									"value": "Malik",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Shaikh",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/users/register/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"register",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resetPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"muqeet6896@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/password_reset/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"password_reset",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resetPasswordConfirm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"pass@123\",\n    \"token\": \"a0340b9e763df4bdb76934b89803\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/password_reset/confirm/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"password_reset",
+								"confirm",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "loginRefresh",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxODAyOTA1OCwianRpIjoiYTM0MGU3MDQ2NGY2NDkxZjkyNzdjMzYxNjdiZGQ2NTQiLCJ1c2VyX2lkIjo0fQ.QJdPthOlPwmI6rgU-Zyi4IaFTLzj9WNsh13VYV4wy5E\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users/login/refresh/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"login",
+								"refresh",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
