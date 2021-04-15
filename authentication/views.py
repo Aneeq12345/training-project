@@ -26,11 +26,7 @@ from django.http import HttpResponsePermanentRedirect
 import os
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
-
-class CustomRedirect(HttpResponsePermanentRedirect):
-
-    allowed_schemes = [os.environ.get('APP_SCHEME'), 'http', 'https']
+from django.core import serializers
 
 
 class RegisterView(generics.CreateAPIView):
@@ -38,18 +34,34 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
+    def getUser(self, email):
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None
+
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        return BaseApiView.sucess(response.data,
-                                  "User registered successfully.",
-                                  status.HTTP_201_CREATED, None)
+        user = self.getUser(email=request.data['email'])
+        if not user:
+            try:
+                response = super().create(request, *args, **kwargs)
+                return BaseApiView.sucess(response.data,
+                                          "User registered successfully.",
+                                          status.HTTP_400_BAD_REQUEST, None)
+            except Exception as identifier:
+                error = identifier.args
+                return BaseApiView.failed("",
+                                          "Error Occured",
+                                          status.HTTP_400_BAD_REQUEST,
+                                          error)
+        else:
+            return BaseApiView.failed("",
+                                      "User Already Exists.",
+                                      status.HTTP_400_BAD_REQUEST, None)
 
 
 class Login(generics.CreateAPIView):
     serializer_class = LoginSerializer
-
-    # token_param_config = openapi.Parameter(
-    #     'email', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
 
     def getUser(self, email):
         try:
@@ -63,7 +75,7 @@ class Login(generics.CreateAPIView):
         return {
             'refresh': str(refresh),
             'access': str(refresh.access_token)}
-    # @swagger_auto_schema(manual_parameters=[token_param_config])
+
     def post(self, request, format=None):
         email = request.data['email']
         if validate_email(email):
@@ -102,10 +114,6 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             token = PasswordResetTokenGenerator().make_token(user)
             current_site = get_current_site(
                 request=request).domain
-            relativeLink = reverse(
-                'password-reset-confirm', kwargs={'uidb64': uidb64,
-                                                  'token': token})
-            absurl = 'http://'+current_site + relativeLink
             email_body = 'Hello, \n Use token below to reset your password  \
              \n token = '+token+'\n uid = '+uidb64
             try:
@@ -147,7 +155,11 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
         except DjangoUnicodeDecodeError as identifier:
             try:
                 if not PasswordResetTokenGenerator().check_token(user):
-                    return CustomRedirect(redirect_url+'?token_valid=False')
+                    return BaseApiView.failed("",
+                                              "Token is not valid," +
+                                              " please request a new one",
+                                              status.HTTP_400_BAD_REQUEST,
+                                              "Token not valid")
             except UnboundLocalError as e:
                 return BaseApiView.failed("",
                                           "Token is not valid," +
@@ -161,14 +173,12 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
 
     def patch(self, request):
         try:
-            print(request.data)
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
             return BaseApiView.sucess("",
                                       "Password reset successfully",
                                       status.HTTP_200_OK, None)
         except Exception as identifier:
-            print(identifier)
             return BaseApiView.failed("",
                                       "Token is invalid",
                                       status.HTTP_400_BAD_REQUEST,
@@ -179,15 +189,12 @@ class refreshLogin(TokenRefreshView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        # print(serializer)
         if serializer.is_valid():
             return BaseApiView.sucess(serializer.validated_data,
                                       "Access token generated successfully.",
                                       status.HTTP_201_CREATED, None)
-            print(serializer.is_valid(raise_exception=True))
         else:
             return BaseApiView.sucess("",
                                       "Error Occured.",
                                       status.HTTP_201_CREATED,
                                       serializer.errors)
-
