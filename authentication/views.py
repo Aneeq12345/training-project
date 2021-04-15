@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from validate_email import validate_email
-from response import BaseApiView
+from base_api_view import BaseApiView
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.core.mail import BadHeaderError, send_mail
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -29,14 +29,14 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
-    def getUser(self, email):
+    def get_user(self, email):
         try:
             return User.objects.get(email=email)
         except User.DoesNotExist:
             return None
 
     def create(self, request, *args, **kwargs):
-        user = self.getUser(email=request.data['email'])
+        user = self.get_user(email=request.data['email'])
         if not user:
             try:
                 response = super().create(request, *args, **kwargs)
@@ -58,7 +58,7 @@ class RegisterView(generics.CreateAPIView):
 class Login(generics.CreateAPIView):
     serializer_class = LoginSerializer
 
-    def getUser(self, email):
+    def get_user(self, email):
         try:
             return User.objects.get(email=email)
         except User.DoesNotExist:
@@ -74,7 +74,7 @@ class Login(generics.CreateAPIView):
     def post(self, request, format=None):
         email = request.data['email']
         if validate_email(email):
-            user = self.getUser(email=email)
+            user = self.get_user(email=email)
             if not user:
                 return BaseApiView.failed("",
                                           "User Not Found!",
