@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'authentication.apps.AuthenticationConfig',
     'social_django',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [

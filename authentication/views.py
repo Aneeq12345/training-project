@@ -1,6 +1,6 @@
 from rest_framework import status
 from .serializers import (
-    RegisterSerializer, UserSerializer,
+    RegisterSerializer, UserSerializer, LoginSerializer,
     ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer)
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework.permissions import AllowAny
@@ -14,11 +14,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from validate_email import validate_email
 from .response import BaseApiView
 from rest_framework_simplejwt.views import TokenRefreshView
-from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import BadHeaderError, send_mail
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.http import HttpResponse
 from django.utils.encoding import force_bytes
 from django.utils.encoding import (
     smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError)
@@ -27,6 +24,8 @@ from django.urls import reverse
 from rest_framework import serializers
 from django.http import HttpResponsePermanentRedirect
 import os
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class CustomRedirect(HttpResponsePermanentRedirect):
@@ -46,7 +45,12 @@ class RegisterView(generics.CreateAPIView):
                                   status.HTTP_201_CREATED, None)
 
 
-class Login(APIView):
+class Login(generics.CreateAPIView):
+    serializer_class = LoginSerializer
+
+    # token_param_config = openapi.Parameter(
+    #     'email', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+
     def getUser(self, email):
         try:
             return User.objects.get(email=email)
@@ -59,7 +63,7 @@ class Login(APIView):
         return {
             'refresh': str(refresh),
             'access': str(refresh.access_token)}
-
+    # @swagger_auto_schema(manual_parameters=[token_param_config])
     def post(self, request, format=None):
         email = request.data['email']
         if validate_email(email):
@@ -101,9 +105,6 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             relativeLink = reverse(
                 'password-reset-confirm', kwargs={'uidb64': uidb64,
                                                   'token': token})
-
-            redirect_url = request.data.get('redirect_url', '')
-            print(redirect_url)
             absurl = 'http://'+current_site + relativeLink
             email_body = 'Hello, \n Use token below to reset your password  \
              \n token = '+token+'\n uid = '+uidb64
