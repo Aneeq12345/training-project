@@ -46,8 +46,10 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'rest_framework_simplejwt',
     'django_crontab',
+    'authentication.apps.AuthenticationConfig',
     'task.apps.TaskConfig',
     'social_django',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +82,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'training_project.wsgi.application'
 
+SWAGGER_SETTINGS = {
 
+    'USE_SESSION_AUTH': False,
+    'DOC_EXPANSION': 'list',
+    'APIS_SORTER': 'alpha',
+    'JSON_EDITOR': True, 
+    'api_version': '0.1',
+    'SUPPORTED_SUBMIT_METHODS': [
+        'get',
+        'post',
+        'put',
+        'delete'
+    ],
+    'SECURITY_DEFINITIONS': {
+        "api_key": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT authorization"
+        },
+    },
+}
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 DATABASES = {
