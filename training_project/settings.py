@@ -14,7 +14,7 @@ from pathlib import Path
 
 import os
 from decouple import config
-
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,6 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 # EMAIL
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
@@ -180,6 +181,7 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.facebook.FacebookOAuth2',
 ]
 SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=30),
     'USER_ID_FIELD': 'email',  # model property to attempt claims for
     'USER_ID_CLAIM': 'user_email',  # actual keyword in token data
 }
