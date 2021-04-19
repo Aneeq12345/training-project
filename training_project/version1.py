@@ -22,5 +22,4 @@ from django.conf.urls import url
 urlpatterns = [
     path('', include('authentication.urls')),
     path('users/', include('task.urls')),
-
 ]

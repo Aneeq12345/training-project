@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'django_crontab',
     'authentication.apps.AuthenticationConfig',
     'task.apps.TaskConfig',
-    'facebook_auth.apps.FacebookAuthConfig',
     'social_django',
     'drf_yasg',
 ]

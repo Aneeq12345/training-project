@@ -42,7 +42,7 @@ class RegisterView(generics.CreateAPIView):
                 response = super().create(request, *args, **kwargs)
                 return BaseApiView.sucess(response.data,
                                           "User registered successfully.",
-                                          status.HTTP_400_BAD_REQUEST, None)
+                                          status.HTTP_201_CREATED, None)
             except Exception as identifier:
                 error = identifier.args
                 return BaseApiView.failed("",
