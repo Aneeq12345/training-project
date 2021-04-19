@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'authentication.apps.AuthenticationConfig',
     'task.apps.TaskConfig',
+    'facebook_auth.apps.FacebookAuthConfig',
     'social_django',
     'drf_yasg',
 ]
@@ -83,18 +84,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'training_project.wsgi.application'
 
 SWAGGER_SETTINGS = {
-
-    'USE_SESSION_AUTH': False,
-    'DOC_EXPANSION': 'list',
-    'APIS_SORTER': 'alpha',
-    'JSON_EDITOR': True, 
-    'api_version': '0.1',
-    'SUPPORTED_SUBMIT_METHODS': [
-        'get',
-        'post',
-        'put',
-        'delete'
-    ],
     'SECURITY_DEFINITIONS': {
         "api_key": {
             "type": "apiKey",
@@ -122,27 +111,29 @@ DATABASES = {
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
+    'EXCEPTION_HANDLER': 'training_project.exception_handler.custom_exception_handler',
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.\
-         UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.\
-         MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.\
-        CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.\
-        NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 # EMAIL
