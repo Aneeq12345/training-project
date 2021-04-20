@@ -181,22 +181,22 @@ class SimilarTasks(APIView):
 class Report1(APIView):
     @method_decorator(cache_page(60*15))
     def get(self, request, uid, format=None):
-        task_count = Task.objects.filter(user=uid).count()
-        completed_task = Task.objects.filter(user=uid,
-                                             completion_status=True).count()
-        remaining_task = Task.objects.filter(user=uid,
-                                             completion_status=False).count()
-        result = {
-                    "number_of_tasks": task_count,
-                    "completed_tasks": completed_task,
-                    "remaining_tasks": remaining_task
-                }
+        result = {}
+        result['number_of_tasks'] = Task.objects.filter(user=uid).count()
+        result['completed_tasks'] = Task.objects.filter(
+                                    user=uid,
+                                    completion_status=True).count()
+        result['remaining_tasks'] = Task.objects.filter(
+                                    user=uid,
+                                    completion_status=False).count()
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=report1.csv'
         # Create the CSV writer using the HttpResponse as the "file"
         writer = csv.writer(response)
-        writer.writerow(['number_of_tasks', 'completed_tasks','remaining_tasks'])
-        writer.writerow([task_count, completed_task, remaining_task])
+        writer.writerow(['number_of_tasks', 'completed_tasks',
+                        'remaining_tasks'])
+        writer.writerow([result['number_of_tasks'], result['completed_tasks'],
+                         result['remaining_tasks']])
         return response
 
 
@@ -204,7 +204,6 @@ class Report2(APIView):
     @method_decorator(cache_page(60*15))
     def get(self, request, uid, format=None):
         user_joining_date = User.objects.values('date_joined').filter(id=uid)
-        print(user_joining_date)
         today = date.today()
         date_joined = user_joining_date[0]['date_joined'].date()
         delta = timedelta(days=1)
@@ -233,14 +232,13 @@ class Report2(APIView):
 class Report3(APIView):
     @method_decorator(cache_page(60*15))
     def get(self, request, uid, format=None):
-        late_tasks_completed = Task.objects.filter(user=uid,
-                                                   completion_date__gt=F('due_date')).count()
-        result = {
-                    "late_tasks_completed": late_tasks_completed
-                }
+        result = {}
+        result['late_tasks_completed'] = Task.objects.filter(
+            user=uid,
+            completion_date__gt=F('due_date')).count()
         return BaseApiView.sucess(result,
                                   "Report Generated",
-                                  status.HTTP_200_OK, None)   
+                                  status.HTTP_200_OK, None)
 
 
 class Report4(APIView):
@@ -250,7 +248,6 @@ class Report4(APIView):
                                   .annotate(task_completed=Count('id'))\
                                   .filter(user=uid, completion_status=True)\
                                   .aggregate(Max('task_completed'))
-        print(max_tasks_completed)
         max_tasks_completed_on_date = Task.objects.values('completion_date')\
                                           .annotate(
                                               task_completed=Count('id'))\
@@ -258,10 +255,10 @@ class Report4(APIView):
                                               user=uid,
                                               completion_status=True)\
                                           .filter(
-                                              task_completed=max_tasks_completed['task_completed__max'])
-        if(max_tasks_completed['task_completed__max']!=None):
+            task_completed=max_tasks_completed['task_completed__max'])
+        if(max_tasks_completed['task_completed__max'] is not None):
             result = {
-                        "max_tasks_completed": max_tasks_completed_on_date 
+                        "max_tasks_completed": max_tasks_completed_on_date
                     }
             return BaseApiView.sucess(result,
                                       "Report Generated",
@@ -284,10 +281,9 @@ class Report5(APIView):
             tasks = Task.objects.filter(date_posted__date=date_joined,
                                         user=uid)\
                         .count()
-            print(date_joined.strftime("%Y-%m-%d"))
-            print(date_joined.strftime("%A"))
-            tasks_opened[date_joined.strftime("%A")+", "+date_joined.strftime("%Y-%m-%d")] = tasks
-            print(tasks)
+            tasks_opened[
+                date_joined.strftime("%A")+", " +
+                date_joined.strftime("%Y-%m-%d")] = tasks
             date_joined += delta
         result = {
              "tasks_opened": tasks_opened,

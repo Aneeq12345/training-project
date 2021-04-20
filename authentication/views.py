@@ -58,7 +58,7 @@ class RegisterView(generics.CreateAPIView):
 class Login(generics.CreateAPIView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
-    
+
     def get_user(self, email):
         try:
             return User.objects.get(email=email)

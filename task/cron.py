@@ -9,8 +9,6 @@ def my_scheduled_job():
     today = date.today()
     task = Task.objects.filter(due_date=today).select_related('user')
     for tasks in task:
-        print(tasks.user.email)
-        # user.email_user('Subject here', 'Here is the message.')
         send_mail(
             'Deadline',
             ''+tasks.title+' is due today',

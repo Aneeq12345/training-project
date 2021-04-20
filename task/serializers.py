@@ -25,6 +25,5 @@ class TaskInputSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ('title', 'description', 'due_date', 'completion_date', 
+        fields = ('title', 'description', 'due_date', 'completion_date',
                   'completion_status')
-
