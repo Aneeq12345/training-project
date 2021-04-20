@@ -192,7 +192,7 @@ class Report1(APIView):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=report1.csv'
         # Create the CSV writer using the HttpResponse as the "file"
-        writer = csv.writer(response)
+        writer = csv.writer(response, quoting=csv.QUOTE_ALL)
         writer.writerow(['number_of_tasks', 'completed_tasks',
                         'remaining_tasks'])
         writer.writerow([result['number_of_tasks'], result['completed_tasks'],
@@ -223,7 +223,7 @@ class Report2(APIView):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=report2.csv'
         # Create the CSV writer using the HttpResponse as the "file"
-        writer = csv.writer(response)
+        writer = csv.writer(response, quoting=csv.QUOTE_ALL)
         writer.writerow(['avg_number_of_tasks_completed'])
         writer.writerow([count/days])
         return response

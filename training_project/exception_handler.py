@@ -10,7 +10,6 @@ from json import dumps, loads, JSONEncoder, JSONDecoder
 
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
-    # print(response.data['auth'])
     if response:
         return BaseApiView.failed("",
                                   "Error Occured.",
