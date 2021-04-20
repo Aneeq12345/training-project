@@ -24,13 +24,14 @@
         // Called when a person is finished with the Login Button.
         FB.getLoginStatus(function (response) {
           // See the on login handler
+          console.log(response)
           statusChangeCallback(response);
         });
       }
 
       window.fbAsyncInit = function () {
         FB.init({
-          appId: "2549268112040998",
+          appId: "826615238201269",
           cookie: true, // Enable cookies to allow the server to access the session.
           xfbml: true, // Parse social plugins on this webpage.
           version: "v5.0", // Use this Graph API version for this call.
@@ -46,7 +47,7 @@
         // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
         
         FB.api("/me", function (response) {
-
+console.log(response)
           document.getElementById("status").innerHTML =
             "Thanks for logging in, " + response.name + "!";
         });

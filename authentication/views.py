@@ -42,7 +42,7 @@ class RegisterView(generics.CreateAPIView):
                 response = super().create(request, *args, **kwargs)
                 return BaseApiView.sucess(response.data,
                                           "User registered successfully.",
-                                          status.HTTP_400_BAD_REQUEST, None)
+                                          status.HTTP_201_CREATED, None)
             except Exception as identifier:
                 error = identifier.args
                 return BaseApiView.failed("",
@@ -57,6 +57,7 @@ class RegisterView(generics.CreateAPIView):
 
 class Login(generics.CreateAPIView):
     serializer_class = LoginSerializer
+    permission_classes = (AllowAny,)
 
     def get_user(self, email):
         try:
@@ -97,6 +98,7 @@ class Login(generics.CreateAPIView):
 
 class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailRequestSerializer
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -126,6 +128,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
 
 class PasswordTokenCheckAPI(generics.GenericAPIView):
     serializer_class = SetNewPasswordSerializer
+    permission_classes = (AllowAny,)
 
     def get(self, request, uidb64, token):
 
@@ -163,6 +166,7 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
 
 class SetNewPasswordAPIView(generics.GenericAPIView):
     serializer_class = SetNewPasswordSerializer
+    permission_classes = (AllowAny,)
 
     def patch(self, request):
         try:
@@ -179,6 +183,7 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
 
 
 class refreshLogin(TokenRefreshView):
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -187,7 +192,7 @@ class refreshLogin(TokenRefreshView):
                                       "Access token generated successfully.",
                                       status.HTTP_201_CREATED, None)
         else:
-            return BaseApiView.sucess("",
+            return BaseApiView.failed("",
                                       "Error Occured.",
-                                      status.HTTP_201_CREATED,
+                                      status.HTTP_400_BAD_REQUEST,
                                       serializer.errors)

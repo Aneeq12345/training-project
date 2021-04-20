@@ -14,7 +14,7 @@ from pathlib import Path
 
 import os
 from decouple import config
-from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_crontab',
     'authentication.apps.AuthenticationConfig',
+    'task.apps.TaskConfig',
     'social_django',
     'drf_yasg',
 ]
@@ -81,7 +82,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'training_project.wsgi.application'
 
-
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        "api_key": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT authorization"
+        },
+    },
+}
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 DATABASES = {
@@ -100,9 +110,15 @@ DATABASES = {
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
+    'EXCEPTION_HANDLER': 'training_project.exception_handler.custom_exception_handler',
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -120,7 +136,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 # EMAIL
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
@@ -165,7 +180,6 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.facebook.FacebookOAuth2',
 ]
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=30),
     'USER_ID_FIELD': 'email',  # model property to attempt claims for
     'USER_ID_CLAIM': 'user_email',  # actual keyword in token data
 }

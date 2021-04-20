@@ -21,4 +21,5 @@ from django.views.generic import TemplateView
 from django.conf.urls import url
 urlpatterns = [
     path('', include('authentication.urls')),
+    path('users/', include('task.urls')),
 ]
