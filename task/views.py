@@ -1,28 +1,23 @@
-from django.shortcuts import render
-from .models import Task, TaskFile
-from .serializers import (TaskSerializer, FileSerializer,
-                          TaskInputSerializer, FileInputSerializer)
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from django.contrib.auth.models import User
-from django.http import HttpResponse, Http404
-from .forms import FileForm
+import csv
 from datetime import date, datetime, timedelta
+
 from base_api_view import BaseApiView
-from rest_framework import generics
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-from rest_framework.parsers import FormParser, MultiPartParser
-import jwt
-from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import User
 from django.db.models import Count, F, Max
+from django.http import Http404, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.http import HttpResponse, JsonResponse
-import csv
+from rest_framework import generics, status
+from rest_framework.decorators import api_view
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .forms import FileForm
+from .models import Task, TaskFile
+from .serializers import (FileInputSerializer, FileSerializer,
+                          TaskInputSerializer, TaskSerializer)
 
 
 class TaskList(generics.GenericAPIView):
@@ -31,6 +26,14 @@ class TaskList(generics.GenericAPIView):
 
     def post(self, request, uid, format=None):
         request.data['user'] = uid
+        due_date = request.data['due_date']
+        due_date = due_date.split('T')[0]
+        due_date = datetime. strptime(due_date, '%Y-%m-%d')
+        if(due_date.date() < date.today()):
+            return BaseApiView.failed("",
+                                      "Error Occured.",
+                                      status.HTTP_400_BAD_REQUEST,
+                                      {"due_date": "Invalid due_date"})
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -114,7 +117,7 @@ class TaskController(generics.GenericAPIView):
         else:
             return BaseApiView.failed("",
                                       "Task Not Found.",
-                                      status.HTTP_204_NO_CONTENT, None)
+                                      status.HTTP_404_NOT_FOUND, None)
 
 
 class FileController(generics.CreateAPIView):

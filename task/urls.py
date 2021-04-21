@@ -1,13 +1,14 @@
-from django.urls import path
-from . import views
 from django.conf.urls import url
+from django.urls import path
+
+from . import views
 
 urlpatterns = [
 
     path('<int:uid>/tasks/<int:tid>', views.TaskController.as_view(),
          name='TaskController'),
     path('<int:uid>/tasks/', views.TaskList.as_view(),
-         name='Task-Controller'),
+         name='TaskList'),
     # path('', views.TaskController.as_view(), name='TaskController'),
     path('<int:uid>/tasks/similars/', views.SimilarTasks.as_view(),
          name='similar'),

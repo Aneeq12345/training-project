@@ -1,11 +1,11 @@
-from django.urls import path, include
-from authentication.views import (
-    RegisterView, Login, refreshLogin, RequestPasswordResetEmail,
-    PasswordTokenCheckAPI, SetNewPasswordAPIView)
+from django.urls import include, path
 
+from authentication.views import (Login, PasswordTokenCheckAPI, RegisterView,
+                                  RequestPasswordResetEmail,
+                                  SetNewPasswordAPIView, refreshLogin)
 
 urlpatterns = [
-    path('auth/login/', Login.as_view(), name='token_obtain_pair'),
+    path('auth/login/', Login.as_view(), name='auth_login'),
     path('auth/password-reset-email/', RequestPasswordResetEmail.as_view(),
          name='password-reset-email'),
     path('auth/token/refresh/', refreshLogin.as_view(), name='token_refresh'),
