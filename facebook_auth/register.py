@@ -49,15 +49,11 @@ def register_social_user(provider, user_id, email, name):
             raise AuthenticationFailed("Email already exists")
 
     else:
-        print("hello")
         user = {
             'username': email, 'email': email,
             'password': config('SOCIAL_SECRET')}
-        print(user)
         user = User.objects.create_user(**user)
         user.is_verified = True
-        user.save()
-        print(user)
         new_user = authenticate(
             username=email, password=config('SOCIAL_SECRET'))
         provider = {
@@ -65,9 +61,12 @@ def register_social_user(provider, user_id, email, name):
             'user': user
         }
         SocialProvider.objects.create(**provider)
-        print(new_user)
         return {
-            'id': new_user.id,
-            'email': new_user.email,
+            "user"{
+                'id': new_user.id,
+                'email': new_user.email,
+                'first_name': new_user.first_name,
+                'last_name': new_user.last_name
+            }
             'tokens': get_tokens_for_user(new_user)
         }

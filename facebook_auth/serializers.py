@@ -33,7 +33,6 @@ class FacebookSocialAuthSerializer(serializers.Serializer):
                 email=email,
                 name=name
             )
-            print(response)
             return(response)
         except Exception as identifier:
             raise serializers.ValidationError(
