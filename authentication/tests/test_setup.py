@@ -1,8 +1,7 @@
-from rest_framework.test import APITestCase
+from django.contrib.auth.models import User
 from django.urls import reverse
 from faker import Faker
-
-from django.contrib.auth.models import User
+from rest_framework.test import APITestCase
 
 
 class PositiveTestSetUp(APITestCase):

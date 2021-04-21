@@ -1,30 +1,23 @@
-from django.shortcuts import render
-from .models import Task, TaskFile
-from .serializers import (TaskSerializer, FileSerializer,
-                          TaskInputSerializer, FileInputSerializer)
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from django.contrib.auth.models import User
-from django.http import HttpResponse, Http404
-from .forms import FileForm
+import csv
 from datetime import date, datetime, timedelta
+
 from base_api_view import BaseApiView
-from rest_framework import generics
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-from rest_framework.parsers import FormParser, MultiPartParser
-import jwt
-from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import User
 from django.db.models import Count, F, Max
+from django.http import Http404, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.http import HttpResponse, JsonResponse
-import csv
-import logging
-logger = logging.getLogger(__name__)
+from rest_framework import generics, status
+from rest_framework.decorators import api_view
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .forms import FileForm
+from .models import Task, TaskFile
+from .serializers import (FileInputSerializer, FileSerializer,
+                          TaskInputSerializer, TaskSerializer)
 
 
 class TaskList(generics.GenericAPIView):
@@ -37,7 +30,6 @@ class TaskList(generics.GenericAPIView):
         due_date = due_date.split('T')[0]
         due_date = datetime. strptime(due_date, '%Y-%m-%d')
         if(due_date.date() < date.today()):
-            logger.error("Invalid due date")
             return BaseApiView.failed("",
                                       "Error Occured.",
                                       status.HTTP_400_BAD_REQUEST,
@@ -48,7 +40,6 @@ class TaskList(generics.GenericAPIView):
             return BaseApiView.sucess(serializer.data,
                                       "Task created successfully.",
                                       status.HTTP_201_CREATED, None)
-        logger.error(serializer.errors)
         return BaseApiView.failed("",
                                   "Error Occured.",
                                   status.HTTP_400_BAD_REQUEST,
@@ -103,7 +94,6 @@ class TaskController(generics.GenericAPIView):
                 return BaseApiView.sucess(serializer.data,
                                           "Task updated successfully.",
                                           status.HTTP_200_OK, None)
-            logger.error(serializer.errors)
             return BaseApiView.failed("",
                                       "Error Occured.",
                                       status.HTTP_400_BAD_REQUEST,
@@ -155,7 +145,6 @@ class FileController(generics.CreateAPIView):
                                       "File attached successfully.",
                                       status.HTTP_201_CREATED, None)
         else:
-            logger.error(form.errors)
             return BaseApiView.failed("",
                                       "Error Occured.",
                                       status.HTTP_400_BAD_REQUEST,

@@ -1,28 +1,29 @@
-from rest_framework import status
-from .serializers import (
-    RegisterSerializer, UserSerializer, LoginSerializer,
-    ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer)
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
+import logging
+import os
+
+from base_api_view import BaseApiView
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import BadHeaderError, send_mail
+from django.urls import reverse
+from django.utils.encoding import (DjangoUnicodeDecodeError, force_bytes,
+                                   force_str, smart_bytes, smart_str)
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework import generics, permissions
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
 from validate_email import validate_email
-from base_api_view import BaseApiView
-from rest_framework_simplejwt.views import TokenRefreshView
-from django.core.mail import BadHeaderError, send_mail
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.utils.encoding import (
-    smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError)
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
-import os
-import logging
+
+from .serializers import (LoginSerializer, RegisterSerializer,
+                          ResetPasswordEmailRequestSerializer,
+                          SetNewPasswordSerializer, UserSerializer)
+
 logger = logging.getLogger(__name__)
 
 
@@ -84,12 +85,10 @@ class Login(generics.CreateAPIView):
                 return BaseApiView.sucess(response_data,
                                           "User logged in successfully.",
                                           status.HTTP_200_OK, None)
-            logger.error("INVALID PASSWORD")
             return BaseApiView.failed("",
                                       "INVALID PASSWORD!",
                                       status.HTTP_400_BAD_REQUEST, None)
         else:
-            logger.error("INVALID EMAIL ADDRESS")
             return BaseApiView.failed("",
                                       "INVALID EMAIL ADDRESS!",
                                       status.HTTP_400_BAD_REQUEST, None)
@@ -148,6 +147,7 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
                                           "Credentials Valid",
                                           status.HTTP_200_OK, None)
         except DjangoUnicodeDecodeError as identifier:
+            logger.error(identifier)
             try:
                 if not PasswordResetTokenGenerator().check_token(user):
                     return BaseApiView.failed("",
@@ -156,6 +156,7 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
                                               status.HTTP_400_BAD_REQUEST,
                                               "Token not valid")
             except UnboundLocalError as e:
+                logger.error(e)
                 return BaseApiView.failed("",
                                           "Token is not valid," +
                                           " please request a new one",
@@ -192,7 +193,6 @@ class refreshLogin(TokenRefreshView):
                                       "Access token generated successfully.",
                                       status.HTTP_201_CREATED, None)
         else:
-            logger.error(serializer.errors)
             return BaseApiView.failed("",
                                       "Error Occured.",
                                       status.HTTP_400_BAD_REQUEST,

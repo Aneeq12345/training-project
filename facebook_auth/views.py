@@ -1,12 +1,11 @@
 
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
-from .serializers import FacebookSocialAuthSerializer
-from rest_framework.permissions import AllowAny
 from base_api_view import BaseApiView
-import logging
-logger = logging.getLogger(__name__)
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+
+from .serializers import FacebookSocialAuthSerializer
 
 
 class FacebookSocialAuthView(GenericAPIView):

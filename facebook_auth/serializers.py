@@ -1,12 +1,12 @@
 
-from rest_framework import serializers
-from . import facebook
-from .register import register_social_user
 import os
-from rest_framework.exceptions import AuthenticationFailed
 
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
+
+from . import facebook
 from .models import SocialProvider
+from .register import register_social_user
 
 
 class SocialProviderSerializer(serializers.ModelSerializer):
@@ -29,7 +29,6 @@ class FacebookSocialAuthSerializer(serializers.Serializer):
                 email=user_data['email'],
                 name=user_data['name']
             )
-            return(response)
         except Exception as identifier:
             raise serializers.ValidationError(
                identifier

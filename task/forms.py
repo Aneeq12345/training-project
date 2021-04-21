@@ -1,5 +1,6 @@
 from django import forms
-from .models import TaskFile, Task
+
+from .models import Task, TaskFile
 
 
 class FileForm(forms.ModelForm):

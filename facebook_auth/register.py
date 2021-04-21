@@ -1,11 +1,13 @@
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
-from .models import SocialProvider
 import os
 import random
-from rest_framework.exceptions import AuthenticationFailed
+
 from decouple import config
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import SocialProvider
 
 
 def get_tokens_for_user(user):
@@ -35,17 +37,18 @@ def register_social_user(provider, user_id, email, name):
         if len(auth_provider) != 0 and provider == auth_provider[0].provider:
             registered_user = authenticate(
                 username=email, password=config('SOCIAL_SECRET'))
-            return {
-                "user": {
-                    'id': registered_user.id,
-                    'email': registered_user.email,
-                    'first_name': registered_user.first_name,
-                    'last_name': registered_user.last_name
+            response_payload = {
+                                "user": {
+                                    'id': registered_user.id,
+                                    'email': registered_user.email,
+                                    'first_name': registered_user.first_name,
+                                    'last_name': registered_user.last_name
 
-                    },
-                "tokens": get_tokens_for_user(registered_user)
+                                    },
+                                "tokens": get_tokens_for_user(registered_user)
 
-            }
+                            }
+            return response_payload
         else:
             raise AuthenticationFailed("User already exists")
 
@@ -63,7 +66,7 @@ def register_social_user(provider, user_id, email, name):
             'user': user
         }
         SocialProvider.objects.create(**provider)
-        return {
+        response_payload = {
                 "user": {
                     'id': new_user.id,
                     'email': new_user.email,
@@ -74,3 +77,4 @@ def register_social_user(provider, user_id, email, name):
                 "tokens": get_tokens_for_user(new_user)
 
             }
+        return response_payload

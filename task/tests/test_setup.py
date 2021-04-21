@@ -1,9 +1,10 @@
-from rest_framework.test import APITestCase
-from django.urls import reverse
-
-from faker import Faker
-from ..models import Task
 from datetime import datetime
+
+from django.urls import reverse
+from faker import Faker
+from rest_framework.test import APITestCase
+
+from ..models import Task
 
 
 class PositiveTestSetUp(APITestCase):

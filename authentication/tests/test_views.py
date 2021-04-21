@@ -1,6 +1,6 @@
-from .test_setup import PositiveTestSetUp, NegativeTestSetUp
-
 from django.contrib.auth.models import User
+
+from .test_setup import NegativeTestSetUp, PositiveTestSetUp
 
 
 class PostiveTestViews(PositiveTestSetUp):

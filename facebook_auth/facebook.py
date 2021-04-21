@@ -15,5 +15,6 @@ class Facebook:
             graph = facebook.GraphAPI(access_token=auth_token)
             profile = graph.request('/me?fields=name,email')
             return profile
-        except:
+
+        except Exception:
             return "The token is invalid or expired."
