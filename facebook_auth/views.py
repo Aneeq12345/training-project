@@ -14,9 +14,7 @@ class FacebookSocialAuthView(GenericAPIView):
     serializer_class = FacebookSocialAuthSerializer
 
     def post(self, request):
-        logger.info(request)
-        logger.debug("Details Given are:")
-        logger.debug(request.data)
+
         """
         POST with "auth_token"
         Send an access token as from facebook to get user information
@@ -25,8 +23,6 @@ class FacebookSocialAuthView(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = ((serializer.validated_data)['auth_token'])
-        logger.debug("User Logged in successfully.")
-        logger.debug(data)
         return BaseApiView.sucess(data,
                                   "User Logged in successfully.",
                                   status.HTTP_201_CREATED, None)

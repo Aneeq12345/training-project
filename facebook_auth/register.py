@@ -35,23 +35,25 @@ def register_social_user(provider, user_id, email, name):
         if len(auth_provider) != 0 and provider == auth_provider[0].provider:
             registered_user = authenticate(
                 username=email, password=config('SOCIAL_SECRET'))
-            data = {}
-            data["user"] = {
+            return {
+                "user": {
                     'id': registered_user.id,
                     'email': registered_user.email,
                     'first_name': registered_user.first_name,
                     'last_name': registered_user.last_name
 
-                    }
-            data['tokens'] = get_tokens_for_user(registered_user)
-            return data
+                    },
+                "tokens": get_tokens_for_user(registered_user)
+
+            }
         else:
-            raise AuthenticationFailed("Email already exists")
+            raise AuthenticationFailed("User already exists")
 
     else:
         user = {
             'username': email, 'email': email,
             'password': config('SOCIAL_SECRET')}
+
         user = User.objects.create_user(**user)
         user.is_verified = True
         new_user = authenticate(
@@ -62,11 +64,13 @@ def register_social_user(provider, user_id, email, name):
         }
         SocialProvider.objects.create(**provider)
         return {
-            "user"{
-                'id': new_user.id,
-                'email': new_user.email,
-                'first_name': new_user.first_name,
-                'last_name': new_user.last_name
+                "user": {
+                    'id': new_user.id,
+                    'email': new_user.email,
+                    'first_name': new_user.first_name,
+                    'last_name': new_user.last_name
+
+                    },
+                "tokens": get_tokens_for_user(new_user)
+
             }
-            'tokens': get_tokens_for_user(new_user)
-        }

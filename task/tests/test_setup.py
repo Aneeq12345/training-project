@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from faker import Faker
 from ..models import Task
+from datetime import datetime
 
 
 class PositiveTestSetUp(APITestCase):
@@ -22,7 +23,7 @@ class PositiveTestSetUp(APITestCase):
         self.task_data = {
             'title': "task1",
             'description': "task1 inserted",
-            'due_date': "2021-04-20T10:41:37.322000Z",
+            'due_date': datetime.today(),
         }
         return super().setUp()
 

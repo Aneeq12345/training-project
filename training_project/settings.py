@@ -110,37 +110,48 @@ DATABASES = {
         },
     }
 }
-LOGGING ={
-    'version':1,
-    'loggers':{
-        '':{
-            'handlers':['file'],
-            'level':'DEBUG'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
         },
-        'authentication':{
-            'handlers':['file'],
-            'level':'DEBUG'
+        'authentication': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
         },
-        'task':{
-            'handlers':['file'],
-            'level':'DEBUG'
+        'task': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
         },
-        'facebook_auth':{
-            'handlers':['file'],
-            'level':'DEBUG'
+        'facebook_auth': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
         },
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        
     },
-    'handlers':{
-        'file':{
-            'level':'DEBUG',
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename':'training_project/debug6.log',
-            'formatter':'simpleRe',
+            'filename': 'training_project/logs.log',
+            'formatter': 'simpleRe',
         },
     },
-    'formatters':{
+    'formatters': {
         'simpleRe': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {pathname} {filename} {funcName:s} {lineno:d} {message}',
             'style': '{',
         }
 

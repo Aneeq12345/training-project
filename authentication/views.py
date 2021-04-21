@@ -38,13 +38,8 @@ class RegisterView(generics.CreateAPIView):
             return None
 
     def create(self, request, *args, **kwargs):
-        logger.info(request)
-        logger.debug("Details Given are:")
-        logger.debug(request.data)
         try:
             response = super().create(request, *args, **kwargs)
-            logger.debug("User registered successfully.")
-            logger.debug(response.data)
             return BaseApiView.sucess(response.data,
                                       "User registered successfully.",
                                       status.HTTP_201_CREATED, None)
@@ -75,14 +70,10 @@ class Login(generics.CreateAPIView):
             'access': str(refresh.access_token)}
 
     def post(self, request, format=None):
-        logger.info(request)
-        logger.debug("Details Given are:")
-        logger.debug(request.data)
         email = request.data['email']
         if validate_email(email):
             user = self.get_user(email=email)
             if not user:
-                logger.error("User Not Found!.")
                 return BaseApiView.failed("",
                                           "User Not Found!",
                                           status.HTTP_404_NOT_FOUND, None)
@@ -90,8 +81,6 @@ class Login(generics.CreateAPIView):
                 serializer = UserSerializer(user)
                 token = self.get_tokens_for_user(user)
                 response_data = {"token": token, "user": serializer.data}
-                logger.debug("User logged in successfully.")
-                logger.debug(response_data)
                 return BaseApiView.sucess(response_data,
                                           "User logged in successfully.",
                                           status.HTTP_200_OK, None)
@@ -111,9 +100,6 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        logger.info(request)
-        logger.debug("Details Given are:")
-        logger.debug(request.data)
         serializer = self.serializer_class(data=request.data)
 
         email = request.data.get('email', '')
@@ -133,7 +119,6 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
                                           "Invalid header",
                                           status.HTTP_400_BAD_REQUEST,
                                           "Invalid header")
-            logger.debug("Successfully Send Token:")
             return BaseApiView.sucess("",
                                       "We have sent you a token to " +
                                       "reset your password ",
@@ -183,13 +168,9 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
 
     def patch(self, request):
-        logger.info(request)
-        logger.debug("Details Given are:")
-        logger.debug(request.data)
         try:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            logger.debug("Password reset successfully.")
             return BaseApiView.sucess("",
                                       "Password reset successfully.",
                                       status.HTTP_200_OK, None)
@@ -205,13 +186,8 @@ class refreshLogin(TokenRefreshView):
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        logger.info(request)
-        logger.debug("Details Given are:")
-        logger.debug(request.data)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            logger.debug("Access token generated successfully.")
-            logger.debug(serializer.validated_data)
             return BaseApiView.sucess(serializer.validated_data,
                                       "Access token generated successfully.",
                                       status.HTTP_201_CREATED, None)

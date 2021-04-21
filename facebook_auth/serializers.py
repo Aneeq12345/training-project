@@ -23,15 +23,11 @@ class FacebookSocialAuthSerializer(serializers.Serializer):
         user_data = facebook.Facebook.validate(auth_token)
 
         try:
-            user_id = user_data['id']
-            email = user_data['email']
-            name = user_data['name']
-            provider = 'facebook'
-            response = register_social_user(
-                provider=provider,
-                user_id=user_id,
-                email=email,
-                name=name
+            return register_social_user(
+                provider='facebook',
+                user_id=user_data['id'],
+                email=user_data['email'],
+                name=user_data['name']
             )
             return(response)
         except Exception as identifier:
