@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'authentication.apps.AuthenticationConfig',
     'task.apps.TaskConfig',
+    'facebook_auth.apps.FacebookAuthConfig',
     'social_django',
     'drf_yasg',
 ]
@@ -104,9 +105,47 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST':     config('DB_HOST'),
         'PORT': '',
+        'TEST': {
+            'NAME': 'myproject_test',
+        },
     }
 }
+LOGGING ={
+    'version':1,
+    'loggers':{
+        '':{
+            'handlers':['file'],
+            'level':'DEBUG'
+        },
+        'authentication':{
+            'handlers':['file'],
+            'level':'DEBUG'
+        },
+        'task':{
+            'handlers':['file'],
+            'level':'DEBUG'
+        },
+        'facebook_auth':{
+            'handlers':['file'],
+            'level':'DEBUG'
+        },
+    },
+    'handlers':{
+        'file':{
+            'level':'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename':'training_project/debug6.log',
+            'formatter':'simpleRe',
+        },
+    },
+    'formatters':{
+        'simpleRe': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        }
 
+    }
+}
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.

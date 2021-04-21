@@ -22,4 +22,6 @@ from django.conf.urls import url
 urlpatterns = [
     path('', include('authentication.urls')),
     path('users/', include('task.urls')),
+    path('auth/', include('facebook_auth.urls')),
+    path('facebook/login/', TemplateView.as_view(template_name='authentication/login.html')),
 ]

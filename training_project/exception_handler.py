@@ -5,16 +5,19 @@ from rest_framework import status
 from rest_framework.views import exception_handler
 import json
 from json import dumps, loads, JSONEncoder, JSONDecoder
-# from django.utils.six.moves.http_client import responses
+import logging
+logger = logging.getLogger(__name__)
 
 
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
     if response:
+        logger.error(response.data)
         return BaseApiView.failed("",
                                   "Error Occured.",
                                   status.HTTP_401_UNAUTHORIZED,
                                   response.data)
+    logger.error(exc)
     return BaseApiView.failed("",
                               "Error Occured.",
                               status.HTTP_500_INTERNAL_SERVER_ERROR,
