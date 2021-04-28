@@ -22,6 +22,5 @@ class FacebookSocialAuthView(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = ((serializer.validated_data)['auth_token'])
-        return BaseApiView.sucess(data,
-                                  "User Logged in successfully.",
-                                  status.HTTP_201_CREATED, None)
+        return BaseApiView.sucess_200("User Logged in successfully.",
+                                      **data)

@@ -1,0 +1,59 @@
+version: "3.9"
+   
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  web:
+    image: training_project
+    environment:
+      - SECRET_KEY=django-insecure-nxmab7-(zscr9(11_la7mbnjnei^(g6v_tj+0k=kh!i^xevw)3
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DEBUG=True
+      - EMAIL_HOST=smtp.sendgrid.net
+      - EMAIL_PORT=587
+      - EMAIL_HOST_USER=apikey
+      - EMAIL_HOST_PASSWORD=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
+      - EMAIL_USE_TLS=True
+      - SOCIAL_SECRET=django-insecure-nxmab7-(z)
+    command:  python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    links:
+      - db
+    depends_on:
+      - migration
+
+  migration:
+    build: .
+    image: training_project
+    environment:
+      - SECRET_KEY=django-insecure-nxmab7-(zscr9(11_la7mbnjnei^(g6v_tj+0k=kh!i^xevw)3
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DEBUG=True
+      - EMAIL_HOST=smtp.sendgrid.net
+      - EMAIL_PORT=587
+      - EMAIL_HOST_USER=apikey
+      - EMAIL_HOST_PASSWORD=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
+      - EMAIL_USE_TLS=True
+      - SOCIAL_SECRET=django-insecure-nxmab7-(z)
+    command: python manage.py migrate
+    volumes:
+      - .:/code
+    links:
+      - db
+    depends_on:
+      - db

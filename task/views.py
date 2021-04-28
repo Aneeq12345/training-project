@@ -2,9 +2,10 @@ import csv
 from datetime import date, datetime, timedelta
 
 from base_api_view import BaseApiView
-from django.contrib.auth.models import User
-from django.db.models import Count, F, Max
+from authentication.models import User
+from django.db.models import Count, F, Max, Subquery, Q
 from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import generics, status
@@ -30,33 +31,26 @@ class TaskList(generics.GenericAPIView):
         due_date = due_date.split('T')[0]
         due_date = datetime. strptime(due_date, '%Y-%m-%d')
         if(due_date.date() < date.today()):
-            return BaseApiView.failed("",
-                                      "Error Occured.",
-                                      status.HTTP_400_BAD_REQUEST,
-                                      {"due_date": "Invalid due_date"})
+            error = {"due_date": "Invalid due_date"}
+            return BaseApiView.failed_400(**error)
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return BaseApiView.sucess(serializer.data,
-                                      "Task created successfully.",
-                                      status.HTTP_201_CREATED, None)
-        return BaseApiView.failed("",
-                                  "Error Occured.",
-                                  status.HTTP_400_BAD_REQUEST,
-                                  serializer.errors)
+            task = {"task": serializer.data}
+            return BaseApiView.sucess_201("Task created successfully.",
+                                          **task)
+        return BaseApiView.failed_400(**serializer.errors)
 
     def get(self, request, uid, format=None):
         task_list = Task.objects.filter(user=uid)
         if len(task_list) > 0:
             serializer = TaskSerializer(task_list, many=True)
-            return BaseApiView.sucess(serializer.data,
-                                      "Tasks retrieved successfully.",
-                                      status.HTTP_200_OK, None)
+            Tasks = {"tasks": serializer.data}
+            return BaseApiView.sucess_200("Tasks retrieved successfully.",
+                                          **Tasks)
         else:
-            return BaseApiView.failed("",
-                                      "Tasks Not Found.",
-                                      status.HTTP_404_NOT_FOUND,
-                                      "")
+            error = {"error": "Tasks Not Found"}
+            return BaseApiView.failed_404(**error)
 
 
 class TaskController(generics.GenericAPIView):
@@ -65,44 +59,34 @@ class TaskController(generics.GenericAPIView):
     serializer_class = TaskInputSerializer
 
     def get_task(self, pk):
-        try:
-            return Task.objects.get(pk=pk)
-        except Task.DoesNotExist:
-            return None
+        return get_object_or_404(Task, pk=pk)
 
     def get(self, request, uid, tid, format=None):
         task = Task.objects.filter(user=uid, id=tid)
         if len(task) > 0:
             serializer = TaskSerializer(task, many=True)
-            return BaseApiView.sucess(serializer.data,
-                                      "Tasks retrieved successfully.",
-                                      status.HTTP_200_OK, None)
+            Tasks = {"tasks": serializer.data}
+            return BaseApiView.sucess_200("Tasks retrieved successfully.",
+                                          **Tasks)
         else:
-            return BaseApiView.failed("",
-                                      "Tasks Not Found.",
-                                      status.HTTP_404_NOT_FOUND,
-                                      "")
+            error = {"error": "Tasks Not Found"}
+            return BaseApiView.failed_404(**error)
 
     def put(self, request, uid, tid, format=None):
         task = self.get_task(tid)
-        request.data['date_posted'] = task.date_posted
-        request.data['user'] = uid
         if task:
+            request.data['date_posted'] = task.date_posted
+            request.data['user'] = uid
             serializer = TaskSerializer(task, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return BaseApiView.sucess(serializer.data,
-                                          "Task updated successfully.",
-                                          status.HTTP_200_OK, None)
-            return BaseApiView.failed("",
-                                      "Error Occured.",
-                                      status.HTTP_400_BAD_REQUEST,
-                                      serializer.errors)
+                task = {"task": serializer.data}
+                return BaseApiView.sucess_200("Task updated successfully.",
+                                              **task)
+            return BaseApiView.failed_400(**serializer.errors)
         else:
-            return BaseApiView.failed("",
-                                      "Tasks Not Found.",
-                                      status.HTTP_404_NOT_FOUND,
-                                      "")
+            error = {"error": "Tasks Not Found"}
+            return BaseApiView.failed_404(**error)
 
     def delete(self, request, uid, tid, format=None):
         task = self.get_task(tid)
@@ -111,13 +95,10 @@ class TaskController(generics.GenericAPIView):
             if(len(file) >= 0):
                 file.delete()
             task.delete()
-            return BaseApiView.sucess("",
-                                      "Task deleted successfully.",
-                                      status.HTTP_204_NO_CONTENT, None)
+            return BaseApiView.sucess_204()
         else:
-            return BaseApiView.failed("",
-                                      "Task Not Found.",
-                                      status.HTTP_404_NOT_FOUND, None)
+            error = {"error": "Tasks Not Found"}
+            return BaseApiView.failed_404(**error)
 
 
 class FileController(generics.CreateAPIView):
@@ -125,11 +106,8 @@ class FileController(generics.CreateAPIView):
     serializer_class = FileInputSerializer
     parser_classes = (FormParser, MultiPartParser)
 
-    def get_task(self, pk):
-        try:
-            return TaskFile.objects.filter(task=pk)
-        except Task.DoesNotExist:
-            raise Http404
+    def get_task_file(self, pk):
+        return TaskFile.objects.filter(task=pk)
 
     def post(self, request, uid, tid, format=None):
         data = {'name': request.POST['name'], 'task': tid}
@@ -141,27 +119,21 @@ class FileController(generics.CreateAPIView):
                         "document": form.cleaned_data["name"],
                         "task": form.cleaned_data["task"].id
                     }
-            return BaseApiView.sucess(payload,
-                                      "File attached successfully.",
-                                      status.HTTP_201_CREATED, None)
+            return BaseApiView.sucess_201("File attached successfully.",
+                                          **payload)
         else:
-            return BaseApiView.failed("",
-                                      "Error Occured.",
-                                      status.HTTP_400_BAD_REQUEST,
-                                      form.errors)
+            return BaseApiView.failed_400(**form.errors)
 
     def get(self, request, uid, tid, format=None):
-        task_file = self.get_task(tid)
+        task_file = self.get_task_file(tid)
         if(len(task_file) > 0):
             file_serializer = FileSerializer(task_file, many=True)
-            return BaseApiView.sucess({"Files": file_serializer.data},
-                                      "Files retrieved successfully.",
-                                      status.HTTP_200_OK, None)
+            files = {"Files": file_serializer.data}
+            return BaseApiView.sucess_200("Files retrieved successfully.",
+                                          **files)
         else:
-            return BaseApiView.failed("",
-                                      "Files not found.",
-                                      status.HTTP_400_BAD_REQUEST,
-                                      None)
+            error = {"error": "Files Not Found"}
+            return BaseApiView.failed_404(**error)
 
 
 class SimilarTasks(APIView):
@@ -171,14 +143,19 @@ class SimilarTasks(APIView):
     def get(self, request, uid, format=None):
         similar_tasks = set()
         tasks = Task.objects.filter(user=uid)
-        [similar_tasks.add(similar_task) for similar_task in tasks
-         if tasks.filter(title=similar_task.title,
-                         description=similar_task.description,
-                         user=similar_task.user).count() > 1]
+        duplicates = Task.objects.values('title', 'description')\
+                         .annotate(Count('id')) \
+                         .order_by()\
+                         .filter(id__count__gt=1, user=2)
+
+        similar_tasks = Task.objects.filter(
+                         title__in=[item['title'] for item in duplicates],
+                         description__in=[item['description']
+                                          for item in duplicates])
         serializer = TaskSerializer(similar_tasks, many=True)
-        return BaseApiView.sucess(serializer.data,
-                                  "Similar tasks.",
-                                  status.HTTP_200_OK, None)
+        similar_task = {"similar_tasks": serializer.data}
+        return BaseApiView.sucess_200("Similar tasks.",
+                                      **similar_task)
 
 
 class Report1(APIView):
@@ -189,9 +166,7 @@ class Report1(APIView):
         result['completed_tasks'] = Task.objects.filter(
                                     user=uid,
                                     completion_status=True).count()
-        result['remaining_tasks'] = Task.objects.filter(
-                                    user=uid,
-                                    completion_status=False).count()
+        result['remaining_tasks'] = result['number_of_tasks'] - result['completed_tasks']
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=report1.csv'
         # Create the CSV writer using the HttpResponse as the "file"
@@ -239,9 +214,8 @@ class Report3(APIView):
         result['late_tasks_completed'] = Task.objects.filter(
             user=uid,
             completion_date__gt=F('due_date')).count()
-        return BaseApiView.sucess(result,
-                                  "Report Generated",
-                                  status.HTTP_200_OK, None)
+        return BaseApiView.sucess_200("Report Generated",
+                                      **result)
 
 
 class Report4(APIView):

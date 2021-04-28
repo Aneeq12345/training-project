@@ -18,7 +18,7 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+AUTH_USER_MODEL = 'authentication.User'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -27,13 +27,15 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool)
-
-ALLOWED_HOSTS = ['localhost']
-
+ALLOWED_HOSTS = [config('ALLOWED_HOST')]
 
 # Application definition
-
-INSTALLED_APPS = [
+PROJECT_APPS = [
+    'authentication.apps.AuthenticationConfig',
+    'task.apps.TaskConfig',
+    'facebook_auth.apps.FacebookAuthConfig',
+]
+DEFAULT_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,16 +43,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+]
+
+THIRD_PARTY_APPS = [
     'rest_framework',
-    'django_rest_passwordreset',
     'rest_framework_simplejwt',
     'django_crontab',
-    'authentication.apps.AuthenticationConfig',
-    'task.apps.TaskConfig',
-    'facebook_auth.apps.FacebookAuthConfig',
-    'social_django',
     'drf_yasg',
 ]
+INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -96,17 +97,12 @@ SWAGGER_SETTINGS = {
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME':     config('DB_NAME'),
         'USER':     config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST':     config('DB_HOST'),
         'PORT': '',
-        'TEST': {
-            'NAME': 'myproject_test',
-        },
     }
 }
 LOGGING = {
@@ -150,7 +146,7 @@ LOGGING = {
     },
     'formatters': {
         'simpleRe': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {pathname} {filename} {funcName:s} {lineno:d} {message}',
+            'format': '{levelname} {asctime} {module} {pathname} {filename} {funcName:s} {lineno:d} {message}',
             'style': '{',
         }
 
@@ -206,11 +202,10 @@ USE_L10N = True
 USE_TZ = True
 
 # cron job
-
+# (min,hour,day(month),month,day(week),cronjob schelude)
 CRONJOBS = [
-    ('*/1 * * * *', 'task.cron.my_scheduled_job')
+    ('0 0 * * *', 'task.cron.my_scheduled_job')
 ]
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
@@ -226,7 +221,6 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'social_core.backends.facebook.FacebookOAuth2',
 ]
 SIMPLE_JWT = {
     'USER_ID_FIELD': 'email',  # model property to attempt claims for

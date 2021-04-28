@@ -2,7 +2,7 @@ import logging
 import os
 
 from base_api_view import BaseApiView
-from django.contrib.auth.models import User
+from decouple import config
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import BadHeaderError, send_mail
@@ -20,6 +20,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 from validate_email import validate_email
 
+from .models import User
 from .serializers import (LoginSerializer, RegisterSerializer,
                           ResetPasswordEmailRequestSerializer,
                           SetNewPasswordSerializer, UserSerializer)
@@ -40,17 +41,16 @@ class RegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         try:
+            if 'email' in request.data:
+                request.data['email'] = request.data['email'].strip().lower()
             response = super().create(request, *args, **kwargs)
-            return BaseApiView.sucess(response.data,
-                                      "User registered successfully.",
-                                      status.HTTP_201_CREATED, None)
+            return BaseApiView.sucess_201("User registered successfully.",
+                                          **response.data)
         except Exception as identifier:
-            error = identifier.args
-            logger.error(identifier.args)
-            return BaseApiView.failed("",
-                                      "Error Occured",
-                                      status.HTTP_400_BAD_REQUEST,
-                                      error)
+            error = {"error": identifier.args}
+            logger.error(error)
+
+            return BaseApiView.failed_400(**error)
 
 
 class Login(generics.CreateAPIView):
@@ -73,25 +73,21 @@ class Login(generics.CreateAPIView):
     def post(self, request, format=None):
         email = request.data['email']
         if validate_email(email):
-            user = self.get_user(email=email)
+            user = self.get_user(email=email.strip().lower())
             if not user:
-                return BaseApiView.failed("",
-                                          "User Not Found!",
-                                          status.HTTP_404_NOT_FOUND, None)
+                error = {"error": "User not found"}
+                return BaseApiView.failed_404(**error)
             if user.check_password(request.data['password']):
                 serializer = UserSerializer(user)
                 token = self.get_tokens_for_user(user)
                 response_data = {"token": token, "user": serializer.data}
-                return BaseApiView.sucess(response_data,
-                                          "User logged in successfully.",
-                                          status.HTTP_200_OK, None)
-            return BaseApiView.failed("",
-                                      "INVALID PASSWORD!",
-                                      status.HTTP_400_BAD_REQUEST, None)
+                return BaseApiView.sucess_200("User logged in successfully.",
+                                              **response_data)
+            error = {"error": "Credentials not valid"}
+            return BaseApiView.failed_400(**error)
         else:
-            return BaseApiView.failed("",
-                                      "INVALID EMAIL ADDRESS!",
-                                      status.HTTP_400_BAD_REQUEST, None)
+            error = {"error": "Credentials not valid"}
+            return BaseApiView.failed_400(**error)
 
 
 class RequestPasswordResetEmail(generics.GenericAPIView):
@@ -111,17 +107,14 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
              \n token = '+token+'\n uid = '+uidb64
             try:
                 send_mail("Password Reset Request", email_body,
-                          "muhammad.aneeq@emumba.com",
+                          config('EMAIL_FROM'),
                           [user.email], fail_silently=False)
             except BadHeaderError:
-                return BaseApiView.failed("",
-                                          "Invalid header",
-                                          status.HTTP_400_BAD_REQUEST,
-                                          "Invalid header")
-            return BaseApiView.sucess("",
-                                      "We have sent you a token to " +
-                                      "reset your password ",
-                                      status.HTTP_200_OK, None)
+                error = {"error": "Invalid header"}
+                return BaseApiView.failed_400(**error)
+            return BaseApiView.sucess_200("We have sent you a token to " +
+                                          "reset your password ",
+                                          **{})
 
 
 class PasswordTokenCheckAPI(generics.GenericAPIView):
@@ -136,32 +129,25 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=id)
             if not PasswordResetTokenGenerator().check_token(user, token):
-                return BaseApiView.failed("",
-                                          "Token is not valid," +
-                                          " please request a new one",
-                                          status.HTTP_400_BAD_REQUEST,
-                                          "Token not valid")
+                error = {
+                    "error": "Token is not valid,please request a new one"
+                    }
+                return BaseApiView.failed_400(**error)
             else:
                 data = {"uidb64": uidb64, "token": token}
-                return BaseApiView.sucess(data,
-                                          "Credentials Valid",
-                                          status.HTTP_200_OK, None)
+                return BaseApiView.sucess_200("Credentials Valid",
+                                              **data)
         except DjangoUnicodeDecodeError as identifier:
             logger.error(identifier)
             try:
                 if not PasswordResetTokenGenerator().check_token(user):
-                    return BaseApiView.failed("",
-                                              "Token is not valid," +
-                                              " please request a new one",
-                                              status.HTTP_400_BAD_REQUEST,
-                                              "Token not valid")
+                    error = {
+                        "error": "Token is not valid,please request a new one"
+                    }
+                    return BaseApiView.failed_400(**error)
             except UnboundLocalError as e:
                 logger.error(e)
-                return BaseApiView.failed("",
-                                          "Token is not valid," +
-                                          " please request a new one",
-                                          status.HTTP_400_BAD_REQUEST,
-                                          "Token not valid")
+                return BaseApiView.failed_400(**e)
 
 
 class SetNewPasswordAPIView(generics.GenericAPIView):
@@ -172,15 +158,12 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
         try:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            return BaseApiView.sucess("",
-                                      "Password reset successfully.",
-                                      status.HTTP_200_OK, None)
+            return BaseApiView.sucess_200("Password reset successfully.",
+                                          **{})
         except Exception as identifier:
             logger.error(identifier)
-            return BaseApiView.failed("",
-                                      "Token is invalid",
-                                      status.HTTP_400_BAD_REQUEST,
-                                      "Token not valid")
+            error = {"error": str(identifier)}
+            return BaseApiView.failed_400(**error)
 
 
 class refreshLogin(TokenRefreshView):
@@ -189,11 +172,7 @@ class refreshLogin(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            return BaseApiView.sucess(serializer.validated_data,
-                                      "Access token generated successfully.",
-                                      status.HTTP_201_CREATED, None)
+            return BaseApiView.sucess_200("Access token generated successfully.",
+                                          **serializer.validated_data)
         else:
-            return BaseApiView.failed("",
-                                      "Error Occured.",
-                                      status.HTTP_400_BAD_REQUEST,
-                                      serializer.errors)
+            return BaseApiView.failed_400(**serializer.errors)
