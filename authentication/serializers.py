@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from .models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_str, smart_str
@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ResetPasswordEmailRequestSerializer(serializers.Serializer):
-    email = serializers.EmailField(min_length=2)
+    email = serializers.EmailField()
 
     class Meta:
         fields = ['email']
@@ -38,7 +38,8 @@ class SetNewPasswordSerializer(serializers.Serializer):
             password = attrs.get('password')
             token = attrs.get('token')
             uidb64 = attrs.get('uidb64')
-
+        except Exception as e:
+            raise AuthenticationFailed('The reset link is invalid', 401)
             id = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=id)
             if not PasswordResetTokenGenerator().check_token(user, token):
@@ -48,8 +49,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
             user.save()
 
             return (user)
-        except Exception as e:
-            raise AuthenticationFailed('The reset link is invalid', 401)
         return super().validate(attrs)
 
 
@@ -68,7 +67,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('password', 'password2', 'email', 'first_name', 'last_name')
 
     def validate(self, attrs):
-
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError(
                 {
@@ -78,6 +76,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        validated_data['email'] = validated_data['email'].strip().lower()
         validated_data['username'] = validated_data['email']
         validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)

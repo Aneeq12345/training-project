@@ -2,8 +2,8 @@ import os
 import random
 
 from decouple import config
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from authentication.models import User
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 

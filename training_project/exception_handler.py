@@ -14,12 +14,9 @@ def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
     if response:
         logger.error(response.data)
-        return BaseApiView.failed("",
-                                  "Error Occured.",
-                                  status.HTTP_401_UNAUTHORIZED,
-                                  response.data)
-    logger.error(exc)
-    return BaseApiView.failed("",
-                              "Error Occured.",
-                              status.HTTP_500_INTERNAL_SERVER_ERROR,
-                              str(exc))
+        if response.data['detail'] == 'Authentication credentials were not provided':
+            return BaseApiView.failed_401(**response.data)
+        return BaseApiView.failed_400(**response.data)
+    error = {"error": str(exc)}
+    logger.error(error)
+    return BaseApiView.failed_400(**error)
